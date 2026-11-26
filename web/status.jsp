@@ -122,8 +122,9 @@
 <html lang="ru">
 <head>
     <meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-store, must-revalidate">
     <title>TWPI — диагностика</title>
-    <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" href="theme.css?v=0.3.1">
 </head>
 <body>
 <h1>TWPI — диагностика контекста</h1>
