@@ -237,26 +237,7 @@
 <head>
     <meta charset="utf-8">
     <title>TWPI — поиск точки</title>
-    <style>
-        body { font: 14px/1.5 "Segoe UI", Arial, sans-serif; margin: 22px; color: #1c2b36; background: #f4f7fa; }
-        h1 { font-size: 19px; margin: 0 0 4px; }
-        p.lead { color: #6b7c8a; margin: 0 0 16px; }
-        form { margin: 0 0 16px; }
-        input[type=text] { padding: 8px 10px; width: 320px; border: 1px solid #cfd9e2; border-radius: 8px; font: inherit; }
-        button { padding: 8px 16px; border: none; border-radius: 8px; background: #10689a; color: #fff; font: inherit; cursor: pointer; }
-        table { border-collapse: collapse; width: 100%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.07); }
-        th, td { border: 1px solid #dbe3ea; padding: 6px 9px; text-align: left; vertical-align: top; }
-        th { background: #eef3f7; }
-        code { font-family: Consolas, monospace; font-size: 12px; }
-        .muted { color: #8494a2; }
-        .err { background: #fdecea; border: 1px solid #f5c6c0; color: #8c2418; padding: 10px 12px; border-radius: 8px; }
-        .tag { display: inline-block; padding: 1px 6px; border-radius: 5px; background: #e7f3ea; color: #1e8449; font-size: 11.5px; }
-        .tag.no { background: #f0f0f0; color: #97a3ad; }
-        .tag.bad { background: #fdecea; color: #b03a2e; }
-        a.act { display: inline-block; padding: 2px 8px; border-radius: 6px; background: #10689a; color: #fff; text-decoration: none; font-size: 12px; margin-right: 4px; }
-        a.act.rh { background: #1e8449; }
-        a { color: #10689a; }
-    </style>
+    <link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <h1>Поиск точки с трендом</h1>

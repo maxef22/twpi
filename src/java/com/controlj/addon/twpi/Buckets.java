@@ -36,7 +36,7 @@ public final class Buckets {
         if (days <= 120) {
             return new Plan("week", weekRanges(toMillis, days));
         }
-        int months = Math.min(12, Math.max(1, Math.round(days / 30f)));
+        int months = Math.min(24, Math.max(1, Math.round(days / 30f)));
         return new Plan("month", monthRanges(toMillis, months));
     }
 

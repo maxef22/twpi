@@ -123,18 +123,7 @@
 <head>
     <meta charset="utf-8">
     <title>TWPI — диагностика</title>
-    <style>
-        body { font: 14px/1.55 "Segoe UI", Arial, sans-serif; color: #1c2b36; margin: 24px; background: #f4f7fa; }
-        h1 { font-size: 19px; margin: 0 0 4px; }
-        p.lead { color: #6b7c8a; margin: 0 0 18px; }
-        table { border-collapse: collapse; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.07); }
-        th, td { border: 1px solid #dbe3ea; padding: 7px 11px; text-align: left; vertical-align: top; }
-        th { background: #eef3f7; font-weight: 600; width: 260px; }
-        code { font-family: Consolas, monospace; background: #eef3f7; padding: 1px 4px; }
-        .bad { color: #b03a2e; font-weight: 600; }
-        .good { color: #1e8449; font-weight: 600; }
-        a { color: #10689a; }
-    </style>
+    <link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <h1>TWPI — диагностика контекста</h1>

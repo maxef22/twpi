@@ -5,93 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TWPI — помещение</title>
-<style>
-    :root {
-        --bg: #eef2f6; --card: #fff; --ink: #1c2b36; --muted: #6b7c8a;
-        --line: #dbe3ea; --accent: #10689a; --accent-dark: #0b4f76;
-    }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 "Segoe UI", Roboto, Arial, sans-serif; }
-    .wrap { max-width: 980px; margin: 0 auto; padding: 26px 20px 48px; }
-
-    .top { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
-    .back {
-        width: 38px; height: 38px; border-radius: 10px; background: #fff; border: 1px solid var(--line);
-        display: flex; align-items: center; justify-content: center; text-decoration: none;
-        color: var(--accent); font-size: 18px;
-    }
-    .back:hover { background: #f4f8fb; }
-    h1 { margin: 0; font-size: 21px; font-weight: 650; flex: 1; min-width: 200px; }
-    .top .controls { display: flex; gap: 8px; align-items: center; }
-
-    select, button {
-        font: inherit; font-size: 13.5px; border-radius: 9px; padding: 9px 12px;
-        border: 1px solid var(--line); background: #fff; color: var(--ink); cursor: pointer;
-    }
-    select { width: 130px; }
-    button.primary { background: var(--accent); color: #fff; border: none; font-weight: 600; }
-    button.primary:hover { background: var(--accent-dark); }
-    a.link { color: var(--accent); text-decoration: none; font-size: 13.5px; padding: 9px 12px; border-radius: 9px; background: #fff; border: 1px solid var(--line); }
-
-    .card {
-        background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-        padding: 20px 22px; margin-bottom: 16px;
-        box-shadow: 0 1px 2px rgba(28,43,54,.05), 0 8px 24px rgba(28,43,54,.05);
-    }
-    .card h2 { margin: 0 0 14px; font-size: 15.5px; font-weight: 650; }
-
-    .value { font-size: 46px; font-weight: 700; line-height: 1; letter-spacing: -.5px; color: var(--accent-dark); font-variant-numeric: tabular-nums; }
-    .value small { font-size: 17px; font-weight: 500; color: var(--muted); margin-left: 6px; }
-    .caption { color: var(--muted); font-size: 13.5px; }
-
-    .gauge { position: relative; height: 10px; border-radius: 6px; margin: 22px 0 8px;
-        background: linear-gradient(90deg, #d95c4a 0%, #e0a33a 38%, #7fb069 66%, #2f8f5b 100%); }
-    .gauge-marker { position: absolute; top: -6px; width: 4px; height: 22px; border-radius: 2px;
-        background: #1c2b36; box-shadow: 0 0 0 2px #fff; transform: translateX(-2px); }
-    .gauge-scale { display: flex; justify-content: space-between; color: var(--muted); font-size: 11.5px; }
-
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 20px; }
-    .stat { background: #f7fafc; border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; }
-    .stat b { display: block; font-size: 18px; font-weight: 650; font-variant-numeric: tabular-nums; }
-    .stat i { display: block; font-style: normal; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-top: 3px; }
-
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
-    th { font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); font-weight: 600; }
-    td code { font-family: Consolas, monospace; font-size: 12px; color: #5d6f7d; }
-    .bad { color: #b03a2e; }
-    .good { color: #1e8449; }
-
-    .chart { display: flex; height: 220px; }
-    .y-axis {
-        width: 40px; display: flex; flex-direction: column; justify-content: space-between;
-        align-items: flex-end; padding: 0 7px 20px 0; font-size: 10.5px; color: var(--muted);
-        font-variant-numeric: tabular-nums;
-    }
-    .plot-wrap { position: relative; flex: 1; }
-    .grid { position: absolute; left: 0; right: 0; top: 0; bottom: 20px;
-        display: flex; flex-direction: column; justify-content: space-between; }
-    .grid i { display: block; height: 0; border-top: 1px dashed #e2e9ef; }
-    .months { position: absolute; left: 0; right: 0; top: 0; bottom: 20px; display: flex; gap: 4px; }
-    .month { position: relative; flex: 1; }
-    .month .bar {
-        position: absolute; bottom: 0; left: 12%; width: 76%;
-        border-radius: 5px 5px 0 0; background: #cfdde7; min-height: 2px; transition: height .3s;
-    }
-    .month .bar.has { background: linear-gradient(180deg, #2f8f5b, #1e8449); }
-    .month .bar.low { background: linear-gradient(180deg, #e08b7a, #c0392b); }
-    .month .val {
-        position: absolute; left: 0; right: 0; text-align: center;
-        font-size: 9.5px; color: var(--muted); font-variant-numeric: tabular-nums;
-    }
-    .month .lbl {
-        position: absolute; bottom: -16px; left: 0; right: 0; text-align: center;
-        font-size: 10px; color: var(--muted); white-space: nowrap;
-    }
-
-    .error { background: #fdecea; border: 1px solid #f5c6c0; color: #8c2418; padding: 12px 14px; border-radius: 10px; }
-    .hint { color: var(--muted); font-size: 12.5px; margin-top: 10px; }
-</style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <div class="wrap">
@@ -105,6 +19,7 @@
                 <option value="30" selected>30 дней</option>
                 <option value="90">90 дней</option>
                 <option value="365">365 дней</option>
+                    <option value="550">550 дней</option>
             </select>
             <button type="button" class="primary" id="refresh">Обновить</button>
             <a class="link" href="rooms.jsp">Настроить</a>
@@ -136,7 +51,7 @@
         <div class="chart">
             <div class="y-axis" id="yAxis"></div>
             <div class="plot-wrap">
-                <div class="grid"><i></i><i></i><i></i><i></i></div>
+                <div class="grid-lines"><i></i><i></i><i></i><i></i></div>
                 <div class="months" id="months"></div>
             </div>
         </div>

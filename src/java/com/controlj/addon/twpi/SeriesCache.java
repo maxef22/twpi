@@ -25,10 +25,10 @@ public final class SeriesCache {
     private static final long TTL_MS = 10L * 60L * 1000L;
 
     /** Глубина чтения: покрывает и период (до года), и 12 месяцев истории. */
-    private static final int LOOKBACK_DAYS = 400;
+    private static final int LOOKBACK_DAYS = 600;
 
     /** Верхняя граница числа адресов в кэше — защита от разрастания памяти. */
-    private static final int MAX_ENTRIES = 64;
+    private static final int MAX_ENTRIES = 48;
 
     private static final SeriesCache INSTANCE = new SeriesCache();
 

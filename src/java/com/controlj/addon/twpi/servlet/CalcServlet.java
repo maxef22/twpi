@@ -36,7 +36,7 @@ public class CalcServlet extends HttpServlet {
 
     private static final long DAY_MS = 24L * 3600L * 1000L;
     private static final int DEFAULT_DAYS = 30;
-    private static final int MAX_DAYS = 366;
+    private static final int MAX_DAYS = 550;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {

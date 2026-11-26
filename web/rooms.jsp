@@ -19,50 +19,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TWPI — помещения</title>
-    <style>
-        :root {
-            --bg: #eef2f6; --card: #fff; --ink: #1c2b36; --muted: #6b7c8a;
-            --line: #dbe3ea; --accent: #10689a; --accent-dark: #0b4f76;
-        }
-        * { box-sizing: border-box; }
-        body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 "Segoe UI", Roboto, Arial, sans-serif; }
-        .wrap { max-width: 1000px; margin: 0 auto; padding: 26px 18px 60px; }
-        h1 { font-size: 21px; margin: 0 0 4px; }
-        .lead { color: var(--muted); font-size: 13.5px; margin: 0 0 18px; }
-        .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(28,43,54,.05); }
-        .room { background: var(--card); border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
-        .room-head { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
-        .badge {
-            flex: 0 0 auto; padding: 5px 10px; border-radius: 8px; background: #e8f1f7;
-            color: var(--accent-dark); font-size: 12px; font-weight: 700; white-space: nowrap;
-        }
-        .room-head input[type=text] { flex: 1; font-weight: 600; }
-        input[type=text], textarea {
-            width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px;
-            font: inherit; font-size: 13.5px; background: #fbfdfe;
-        }
-        input[type=text].addr { font-family: Consolas, "Cascadia Mono", monospace; font-size: 12.5px; }
-        textarea { font-family: Consolas, "Cascadia Mono", monospace; font-size: 12.5px; resize: vertical; }
-        input:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(16,104,154,.13); }
-        .sensors-title { font-size: 11.5px; text-transform: uppercase; letter-spacing: .45px; color: var(--muted); margin: 4px 0 6px; }
-        .sensor { display: grid; grid-template-columns: 150px 1fr 1fr 30px; gap: 8px; margin-bottom: 6px; align-items: center; }
-        .sensor-head { font-size: 11.5px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
-        button { padding: 8px 16px; border: none; border-radius: 8px; background: var(--accent); color: #fff; font: inherit; font-size: 13.5px; cursor: pointer; }
-        button:hover { background: var(--accent-dark); }
-        button.ghost { background: #eef3f7; color: var(--accent); }
-        button.ghost:hover { background: #e2ebf2; }
-        button.danger { background: #fdecea; color: #b03a2e; padding: 4px 9px; }
-        .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 16px 0; }
-        .status { font-size: 13.5px; }
-        .ok { color: #1e8449; }
-        .bad { color: #b03a2e; }
-        .hint { color: var(--muted); font-size: 12.5px; margin-top: 10px; }
-        code { font-family: Consolas, monospace; background: #eef3f7; padding: 1px 4px; border-radius: 4px; }
-        a { color: var(--accent); }
-        .empty { color: var(--muted); padding: 10px 0; }
-        details summary { cursor: pointer; font-weight: 600; font-size: 14px; margin-bottom: 10px; }
-        details[open] summary { margin-bottom: 12px; }
-    </style>
+    <link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <div class="wrap">

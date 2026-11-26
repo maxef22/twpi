@@ -95,7 +95,7 @@ Copy-Item -LiteralPath (Join-Path $root "web\info.xml") -Destination (Join-Path 
 Copy-Item -LiteralPath (Join-Path $root "web\META-INF") -Destination $stageDir -Recurse
 # index.html + status.jsp и любые другие страницы из web/
 Get-ChildItem -Path (Join-Path $root "web") -File |
-    Where-Object { $_.Extension -eq ".html" -or $_.Extension -eq ".jsp" } |
+    Where-Object { $_.Extension -eq ".html" -or $_.Extension -eq ".jsp" -or $_.Extension -eq ".css" -or $_.Extension -eq ".js" } |
     ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $webappDir }
 Copy-Item -LiteralPath (Join-Path $root "web\WEB-INF\web.xml") -Destination $webinfDir
 Copy-Item -Path (Join-Path $classesDir "*") -Destination (Join-Path $webinfDir "classes") -Recurse
