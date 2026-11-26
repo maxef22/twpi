@@ -40,13 +40,28 @@ public class IncludeContentServlet extends HttpServlet {
 
         response.setContentType("text/html; charset=UTF-8");
         String contextPath = request.getContextPath();
+
+        // Параметр page=board отдаёт простое табло (только плашки помещений).
+        String page = request.getParameter("page");
+        String target = "/index.html";
+        if (page != null && page.trim().equalsIgnoreCase("board")) {
+            target = "/board.jsp";
+        }
+
+        // Период можно передать параметром days (число суток).
+        String query = "?embed=1";
+        String days = request.getParameter("days");
+        if (days != null && days.trim().matches("\\d{1,3}")) {
+            query += "&days=" + days.trim();
+        }
+
         PrintWriter out = response.getWriter();
         // Размер задаёт сам элемент «Add-on Content»: iframe занимает весь бокс,
         // внутри страница прокручивается. min-height — на случай, если контейнер
         // ещё не получил высоту.
         out.write("<div class=\"twpi-embed\" style=\"width:100%;height:100%;"
                 + "min-height:160px;margin:0;overflow:hidden\">");
-        out.write("<iframe src=\"" + contextPath + "/index.html?embed=1\" "
+        out.write("<iframe src=\"" + contextPath + target + query + "\" "
                 + "style=\"width:100%;height:100%;border:0;display:block;background:#1b1e22\" "
                 + "title=\"TWPI\"></iframe>");
         out.write("</div>");
