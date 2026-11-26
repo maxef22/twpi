@@ -2,9 +2,14 @@
 #
 #   .\build.ps1
 #   .\build.ps1 -Tomcat "D:\WebCTRL\tomcat" -Jdk "C:\Program Files\Java\jdk-11"
+#   .\build.ps1 -Sign -Keystore "D:\certs\addoncert.keystore" -Storepass "***"
 #
 # Output: dist\twpi.addon -- the file to install into WebCTRL.
 # NetBeans/Ant are not required: plain javac + zip.
+#
+# WebCTRL keeps an add-on in the list only if it is signed with the certificate
+# installed on the server (META-INF/ADDON.SF + ADDON.RSA). Without -Sign the
+# archive is valid but unsigned: it may install and then disappear after restart.
 #
 # Keep this file ASCII-only: Windows PowerShell 5.1 reads UTF-8 without BOM as ANSI
 # and fails to parse non-Latin text.
@@ -13,7 +18,12 @@ param(
     [string]$Tomcat = "C:\Program Files\Apache Software Foundation\Tomcat 9.0",
     [string]$Jdk = "",
     [string]$OutFile = "",
-    [string]$Release = "8"
+    [string]$Release = "8",
+    [switch]$Sign,
+    [string]$Keystore = "",
+    [string]$Storepass = "",
+    [string]$Alias = "AddOnKeyAlias",
+    [string]$Sigfile = "ADDON"
 )
 
 $ErrorActionPreference = "Stop"
@@ -109,6 +119,41 @@ try {
     }
 } finally {
     $zip.Dispose()
+}
+
+if ($Sign) {
+    if (-not $Keystore -or -not (Test-Path -LiteralPath $Keystore)) {
+        throw "Sign: keystore not found. Pass -Keystore <path to addoncert.keystore>."
+    }
+    if (-not $Storepass) { $Storepass = $env:ADDON_KEYSTORE_PASS }
+
+    # javac on PATH may be a shim (Oracle javapath) without jarsigner next to it.
+    $jarsigner = $null
+    $candidates = @()
+    if ($javac) { $candidates += (Join-Path (Split-Path $javac) "jarsigner.exe") }
+    if ($env:JAVA_HOME) { $candidates += (Join-Path $env:JAVA_HOME "bin\jarsigner.exe") }
+    foreach ($candidate in $candidates) {
+        if (Test-Path -LiteralPath $candidate) { $jarsigner = $candidate; break }
+    }
+    if (-not $jarsigner) {
+        $found = Get-ChildItem -Path (Join-Path $env:ProgramFiles "Java") -Filter "jarsigner.exe" `
+            -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($found) { $jarsigner = $found.FullName }
+    }
+    if (-not $jarsigner) {
+        throw "Sign: jarsigner.exe not found. Pass -Jdk <JDK folder>."
+    }
+
+    Write-Host ("== Signing ({0})" -f $jarsigner) -ForegroundColor Cyan
+    $signArgs = @("-keystore", $Keystore, "-sigfile", $Sigfile)
+    if ($Storepass) { $signArgs += @("-storepass", $Storepass) }
+    $signArgs += @($OutFile, $Alias)
+
+    $ErrorActionPreference = "Continue"
+    & $jarsigner @signArgs 2>&1 | ForEach-Object { Write-Host $_ }
+    $signExit = $LASTEXITCODE
+    $ErrorActionPreference = "Stop"
+    if ($signExit -ne 0) { throw "jarsigner failed (exit code $signExit)" }
 }
 
 $size = (Get-Item -LiteralPath $OutFile).Length
