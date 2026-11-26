@@ -108,6 +108,7 @@ public final class SelfTest {
         checkPlan("30 дней", now, 30, "day", 30);
         checkPlan("90 дней", now, 90, "week", 13);
         checkPlan("365 дней", now, 365, "month", 12);
+        checkPlan("550 дней", now, 550, "month", 18);
 
         if (failures == 0) {
             System.out.println("OK: все проверки пройдены");
@@ -133,8 +134,8 @@ public final class SelfTest {
                 fail(name + ": пустой интервал");
                 return;
             }
-            if (previousEnd != Long.MIN_VALUE && range[0] > previousEnd) {
-                fail(name + ": разрыв между интервалами");
+            if (previousEnd != Long.MIN_VALUE && range[0] < previousEnd) {
+                fail(name + ": интервалы не по порядку (старые должны идти первыми)");
                 return;
             }
             previousEnd = range[1];

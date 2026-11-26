@@ -66,13 +66,13 @@ public final class Buckets {
         return ranges;
     }
 
-    /** По неделе на столбик, отсчёт назад от конца сегодняшнего дня. */
+    /** По неделе на столбик, от старых к новым (слева направо). */
     static List<long[]> weekRanges(long toMillis, int days) {
         List<long[]> ranges = new ArrayList<long[]>();
         long windowStart = toMillis - days * DAY_MS;
         long todayEnd = Math.min(startOfDay(toMillis) + DAY_MS, toMillis);
         int count = Math.max(1, (int) Math.ceil(days / 7.0));
-        for (int i = count - 1; i >= 0; i--) {
+        for (int i = 0; i < count; i++) {
             long end = todayEnd - (long) (count - 1 - i) * 7L * DAY_MS;
             long start = Math.max(end - 7L * DAY_MS, windowStart);
             if (end > start) {
