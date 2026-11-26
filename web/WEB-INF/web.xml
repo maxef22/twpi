@@ -59,6 +59,28 @@
         <session-timeout>30</session-timeout>
     </session-config>
 
+    <!--
+        Статические файлы Tomcat отдаёт без charset, и встроенный браузер WebCTRL
+        декодирует их в системной кодировке — кириллица превращается в «ÐŸÐ¾Ð¼…».
+        Явный charset в маппинге заставляет отдавать заголовок с UTF-8.
+    -->
+    <mime-mapping>
+        <extension>html</extension>
+        <mime-type>text/html;charset=UTF-8</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>htm</extension>
+        <mime-type>text/html;charset=UTF-8</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>css</extension>
+        <mime-type>text/css;charset=UTF-8</mime-type>
+    </mime-mapping>
+    <mime-mapping>
+        <extension>js</extension>
+        <mime-type>application/javascript;charset=UTF-8</mime-type>
+    </mime-mapping>
+
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>

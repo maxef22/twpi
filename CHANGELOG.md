@@ -1,5 +1,12 @@
 # История версий
 
+## 0.3.5 — 26.11.2026
+
+- Статические файлы (`index.html`, `theme.css`, `*.js`) отдавались без charset, и внутри
+  WebCTRL кириллица превращалась в «ÐŸÐ¾Ð¼…». Добавлены `mime-mapping` с
+  `charset=UTF-8` для html/htm/css/js.
+
+
 ## 0.3.3 — 26.11.2026
 
 - Добавлен эндпоинт **`/include_content`** (и `/include_script`) — по нему WebCTRL
