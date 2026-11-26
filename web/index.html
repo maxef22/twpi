@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TWPI — индекс сохранности</title>
+<style>
+    :root {
+        --bg: #eef2f6;
+        --card: #ffffff;
+        --ink: #1c2b36;
+        --muted: #6b7c8a;
+        --line: #dbe3ea;
+        --accent: #10689a;
+        --accent-dark: #0b4f76;
+        --bad: #c0392b;
+        --warn: #b9770e;
+        --good: #1e8449;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font: 15px/1.45 "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 28px 20px 48px;
+    }
+
+    header.head {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .logo {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: linear-gradient(150deg, #1b87bd, #0b4f76);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: .5px;
+        box-shadow: 0 6px 16px rgba(11, 79, 118, .25);
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 650;
+        letter-spacing: .2px;
+    }
+
+    h1 span {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 400;
+        color: var(--muted);
+        letter-spacing: .4px;
+        text-transform: uppercase;
+        margin-top: 3px;
+    }
+
+    .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 20px 22px;
+        box-shadow: 0 1px 2px rgba(28, 43, 54, .05), 0 8px 24px rgba(28, 43, 54, .05);
+        margin-bottom: 18px;
+    }
+
+    .card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+    }
+
+    .card-head h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 650;
+    }
+
+    .lead {
+        margin: 0 0 18px;
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+
+    @media (max-width: 720px) {
+        .grid { grid-template-columns: 1fr; }
+    }
+
+    label.field { display: block; }
+
+    label.field > span {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        margin-bottom: 6px;
+    }
+
+    input[type="text"], select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: #fbfdfe;
+        color: var(--ink);
+        font: inherit;
+        font-size: 14px;
+        font-family: Consolas, "Cascadia Mono", monospace;
+        transition: border-color .15s, box-shadow .15s;
+    }
+
+    select { font-family: inherit; }
+
+    input[type="text"]:focus, select:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(16, 104, 154, .14);
+    }
+
+    .controls {
+        display: flex;
+        align-items: flex-end;
+        gap: 14px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+    }
+
+    .controls .field { width: 190px; }
+
+    button {
+        padding: 10px 22px;
+        border: none;
+        border-radius: 9px;
+        background: var(--accent);
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .15s, transform .05s;
+    }
+
+    button:hover { background: var(--accent-dark); }
+    button:active { transform: translateY(1px); }
+    button:disabled { background: #9fb4c2; cursor: default; }
+
+    button.ghost {
+        background: #eef3f7;
+        color: var(--accent);
+        font-weight: 500;
+        padding: 9px 14px;
+    }
+
+    button.ghost:hover { background: #e2ebf2; }
+
+    .hint {
+        margin: 12px 0 0;
+        font-size: 12.5px;
+        color: var(--muted);
+    }
+
+    .hint code {
+        background: #f2f6f9;
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        padding: 1px 5px;
+        font-family: Consolas, "Cascadia Mono", monospace;
+    }
+
+    .alert {
+        padding: 13px 16px;
+        border-radius: 11px;
+        background: #fdecea;
+        border: 1px solid #f5c6c0;
+        color: #8c2418;
+        margin-bottom: 18px;
+        font-size: 14px;
+    }
+
+    .hidden { display: none !important; }
+
+    /* карточки помещений */
+    .rooms {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 12px;
+    }
+
+    .room-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        border: 1px solid var(--line);
+        border-left: 5px solid #c8d3db;
+        border-radius: 12px;
+        padding: 13px 15px;
+        background: #fbfdfe;
+        transition: box-shadow .15s, transform .05s;
+    }
+
+    .room-card:hover {
+        box-shadow: 0 6px 18px rgba(28, 43, 54, .12);
+    }
+
+    .cache-info {
+        font-size: 12px;
+        color: var(--muted);
+        margin: -6px 0 10px;
+    }
+
+    .room-card h3 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        font-weight: 650;
+        line-height: 1.25;
+    }
+
+    .room-card .big {
+        font-size: 30px;
+        font-weight: 700;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        color: var(--accent-dark);
+    }
+
+    .room-card .big small {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted);
+        margin-left: 4px;
+    }
+
+    .room-card .sub {
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.5;
+    }
+
+    .room-card.good { border-left-color: #2f8f5b; }
+    .room-card.warn { border-left-color: #e0a33a; }
+    .room-card.bad  { border-left-color: #d95c4a; }
+    .room-card.err  { border-left-color: #b6c2cb; background: #f7f9fb; }
+    .room-card.err .big { font-size: 15px; color: var(--muted); font-weight: 500; line-height: 1.4; }
+
+    .result-head {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .value {
+        font-size: 46px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: -.5px;
+        color: var(--accent-dark);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .value small {
+        font-size: 17px;
+        font-weight: 500;
+        color: var(--muted);
+        margin-left: 6px;
+    }
+
+    .result-caption {
+        color: var(--muted);
+        font-size: 13.5px;
+    }
+
+    .points {
+        margin-top: 10px;
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.7;
+    }
+
+    .points b {
+        display: inline-block;
+        min-width: 24px;
+        color: var(--ink);
+    }
+
+    .points span {
+        font-family: Consolas, "Cascadia Mono", monospace;
+        font-size: 11.5px;
+        color: #7f8f9c;
+    }
+
+    .gauge {
+        position: relative;
+        height: 10px;
+        border-radius: 6px;
+        margin: 22px 0 8px;
+        background: linear-gradient(90deg, #d95c4a 0%, #e0a33a 38%, #7fb069 66%, #2f8f5b 100%);
+    }
+
+    .gauge-marker {
+        position: absolute;
+        top: -6px;
+        width: 4px;
+        height: 22px;
+        border-radius: 2px;
+        background: #1c2b36;
+        box-shadow: 0 0 0 2px #fff;
+        transform: translateX(-2px);
+        transition: left .35s ease;
+    }
+
+    .gauge-scale {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        font-size: 11.5px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .stat {
+        background: #f7fafc;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 11px 13px;
+    }
+
+    .stat b {
+        display: block;
+        font-size: 18px;
+        font-weight: 650;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .stat i {
+        display: block;
+        font-style: normal;
+        font-size: 11.5px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: .45px;
+        margin-top: 3px;
+    }
+
+    ul.notes {
+        margin: 16px 0 0;
+        padding-left: 20px;
+        color: #8a5a10;
+        font-size: 13.5px;
+    }
+
+    ul.notes li { margin: 3px 0; }
+
+    footer {
+        color: var(--muted);
+        font-size: 12.5px;
+        line-height: 1.6;
+        padding: 4px 4px 0;
+    }
+
+    footer code {
+        background: #e6edf3;
+        border-radius: 4px;
+        padding: 1px 4px;
+        font-family: Consolas, "Cascadia Mono", monospace;
+    }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+    <header class="head">
+        <div class="logo">TWPI</div>
+        <h1>Индекс сохранности
+            <span>Time-Weighted Preservation Index · WebCTRL</span>
+        </h1>
+    </header>
+
+    <section class="card">
+        <div class="card-head">
+            <h2>Помещения</h2>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <select id="roomDays" style="width:130px">
+                    <option value="7">7 дней</option>
+                    <option value="30" selected>30 дней</option>
+                    <option value="90">90 дней</option>
+                    <option value="365">365 дней</option>
+                </select>
+                <button type="button" class="ghost" id="refreshRooms">Обновить</button>
+                <a class="ghost" href="rooms.jsp" style="padding:9px 14px;border-radius:8px;background:#eef3f7;color:#10689a;text-decoration:none;font-size:13.5px">Настроить</a>
+            </div>
+        </div>
+        <div class="cache-info" id="cacheInfo"></div>
+        <div id="roomsHost" class="rooms"></div>
+        <div id="roomsEmpty" class="lead hidden" style="margin:6px 0 0">
+            Список помещений пока пуст — откройте <a href="rooms.jsp">настройки</a> и добавьте первое.
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="card-head"><h2>Разовый расчёт по паре трендов</h2></div>
+        <p class="lead">
+            Введите адреса двух трендов WebCTRL — аддон прочитает историю за выбранный период,
+            посчитает PI для каждого часа и сведёт их в TWPI.
+        </p>
+
+        <div class="grid">
+            <label class="field">
+                <span>Адрес тренда температуры</span>
+                <input type="text" id="t" spellcheck="false" autocomplete="off"
+                       placeholder="#SITE/Building/Floor/Point">
+            </label>
+            <label class="field">
+                <span>Адрес тренда влажности</span>
+                <input type="text" id="rh" spellcheck="false" autocomplete="off"
+                       placeholder="#SITE/Building/Floor/Point">
+            </label>
+        </div>
+
+        <div class="controls">
+            <label class="field">
+                <span>Период расчёта</span>
+                <select id="days">
+                    <option value="7">7 дней</option>
+                    <option value="30" selected>30 дней</option>
+                    <option value="90">90 дней</option>
+                    <option value="365">365 дней</option>
+                </select>
+            </label>
+            <button id="go" type="button">Рассчитать</button>
+        </div>
+
+        <p class="hint">
+            Адрес — путь по <b>Reference Name</b> (колонка Lookup ID, вид
+            <code>#SITE/Building/Floor/Point</code>); можно вставить постоянную ссылку
+            <code>ABSPATH:1:#…</code>. Не знаете адрес — <a href="tree.jsp">найдите точку в дереве</a>.
+        </p>
+    </section>
+
+    <div id="alert" class="alert hidden"></div>
+
+    <section id="result" class="card hidden">
+        <div class="result-head">
+            <div class="value"><span id="twpi">—</span><small>лет</small></div>
+            <div class="result-caption" id="caption"></div>
+        </div>
+
+        <div class="points" id="points"></div>
+
+        <div class="gauge">
+            <div class="gauge-marker" id="marker" style="left: 0%"></div>
+        </div>
+        <div class="gauge-scale">
+            <span>0</span><span>30</span><span>60</span><span>90</span><span>120+</span>
+        </div>
+
+        <div class="stats" id="stats"></div>
+
+        <ul class="notes hidden" id="notes"></ul>
+    </section>
+
+    <footer>
+        TWPI — такое постоянное значение Preservation Index, которое за тот же период
+        дало бы тот же ущерб, что и фактически менявшиеся условия. Считается как
+        <code>N / Σ(1/PI)</code>: усредняются скорости разрушения, а не сами PI.
+        Точка отсчёта IPI — 20 °C / 45 % RH ≈ 50 лет; для сравнения рядом выводится
+        PI по последнему часу периода.
+    </footer>
+
+</main>
+
+<script>
+(function () {
+    "use strict";
+
+    var $ = function (id) { return document.getElementById(id); };
+    var STORAGE_KEY = "twpi.lastPair";
+
+    function fmt(value) {
+        if (value === null || value === undefined || isNaN(value)) { return "—"; }
+        return Number(value).toFixed(1).replace(".", ",");
+    }
+
+    function esc(text) {
+        return String(text === null || text === undefined ? "" : text)
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
+    function dateTime(ms) {
+        var d = new Date(ms);
+        return d.toLocaleString("ru-RU", {
+            day: "2-digit", month: "2-digit", year: "numeric",
+            hour: "2-digit", minute: "2-digit"
+        });
+    }
+
+    function apiBase() {
+        // Аддон может открыться как /twpi, /twpi/ или /twpi/index.html —
+        // во всех случаях API живёт рядом со страницей.
+        var path = window.location.pathname;
+        if (!/\/$/.test(path) && !/\.[a-z0-9]+$/i.test(path)) { path += "/"; }
+        return path.replace(/[^\/]*$/, "");
+    }
+
+    function setBusy(busy) {
+        $("go").disabled = busy;
+        $("go").textContent = busy ? "Считаю…" : "Рассчитать";
+    }
+
+    function showError(message) {
+        $("alert").textContent = message;
+        $("alert").classList.remove("hidden");
+        $("result").classList.add("hidden");
+    }
+
+    function hideError() {
+        $("alert").classList.add("hidden");
+    }
+
+    function stat(value, label) {
+        return '<div class="stat"><b>' + value + '</b><i>' + label + '</i></div>';
+    }
+
+    /* ---------- помещения ---------- */
+
+    function roomCard(room) {
+        var className = "room-card";
+        if (room.error) {
+            className += " err";
+        } else if (room.twpi >= 60) {
+            className += " good";
+        } else if (room.twpi >= 40) {
+            className += " warn";
+        } else {
+            className += " bad";
+        }
+
+        var body;
+        if (room.error) {
+            body = '<div class="big">' + esc(room.error) + '</div>';
+        } else {
+            var sensors = (room.sensors || []).length;
+            body = '<div class="big">' + fmt(room.twpi) + '<small>лет</small></div>'
+                + '<div class="sub">'
+                + 'T ' + fmt(room.t) + ' °C · RH ' + fmt(room.rh) + ' %<br>'
+                + 'часов ' + room.hours + ' · покрытие ' + Math.round((room.coverage || 0) * 100) + ' %'
+                + ' · датчиков ' + sensors
+                + '</div>';
+        }
+        return '<a class="' + className + '" href="room.jsp?i=' + room.index + '">'
+            + '<h3>' + esc(room.name) + '</h3>' + body + '</a>';
+    }
+
+    function showCacheAge(seconds) {
+        var host = $("cacheInfo");
+        if (!seconds || seconds < 45) { host.textContent = ""; return; }
+        var minutes = Math.max(1, Math.round(seconds / 60));
+        host.innerHTML = "данные из кэша, прочитаны " + minutes + " мин назад · "
+            + '<a href="#" id="dropCache">обновить принудительно</a>';
+        $("dropCache").addEventListener("click", function (event) {
+            event.preventDefault();
+            loadRooms(true);
+        });
+    }
+
+    function loadRooms(force) {
+        var days = $("roomDays").value;
+        var button = $("refreshRooms");
+        button.disabled = true;
+        var idleLabel = button.textContent;
+        button.textContent = "Считаю…";
+        fetch(apiBase() + "api/all?days=" + encodeURIComponent(days) + (force ? "&fresh=1" : ""),
+              { headers: { "Accept": "application/json" }, cache: "no-store" })
+            .then(function (response) {
+                return response.text().then(function (text) {
+                    var body;
+                    try { body = JSON.parse(text); }
+                    catch (e) { body = { ok: false, error: "Сервер вернул не JSON (HTTP " + response.status + ")" }; }
+                    if (!body.ok) { throw new Error(body.error || ("HTTP " + response.status)); }
+                    return body;
+                });
+            })
+            .then(function (data) {
+                var host = $("roomsHost");
+                var rooms = data.rooms || [];
+                host.innerHTML = rooms.map(roomCard).join("");
+                $("roomsEmpty").classList.toggle("hidden", rooms.length > 0);
+                showCacheAge(data.cacheAgeSec);
+            })
+            .catch(function (e) {
+                $("roomsHost").innerHTML = "";
+                $("cacheInfo").textContent = "";
+                $("roomsEmpty").classList.remove("hidden");
+                $("roomsEmpty").textContent = "Не удалось получить список помещений: " + (e.message || e);
+            })
+            .then(function () {
+                button.disabled = false;
+                button.textContent = idleLabel;
+            });
+    }
+
+    /* ---------- разовый расчёт ---------- */
+
+    function render(data) {
+        hideError();
+        $("result").classList.remove("hidden");
+        renderPoints(data);
+
+        if (!data.hasResult) {
+            $("twpi").textContent = "—";
+            $("caption").textContent = "Недостаточно данных за период";
+            $("marker").style.left = "0%";
+            $("stats").innerHTML = "";
+            renderNotes(data.notes || []);
+            return;
+        }
+
+        $("twpi").textContent = fmt(data.twpi);
+        $("caption").textContent =
+            "за " + data.periodDays + " дн. · " + dateTime(data.from) + " — " + dateTime(data.to);
+
+        var position = Math.max(0, Math.min(120, data.twpi)) / 120 * 100;
+        $("marker").style.left = position.toFixed(1) + "%";
+
+        var t = data.temperature || {};
+        var rh = data.humidity || {};
+        var coverage = Math.round((data.coverage || 0) * 100);
+
+        $("stats").innerHTML =
+            stat(fmt(data.twpi) + " лет", "TWPI") +
+            stat(fmt(data.piLast) + " лет", "PI сейчас") +
+            stat(data.hours + " / " + data.expectedHours, "Часов с данными") +
+            stat(coverage + " %", "Покрытие периода") +
+            stat(fmt(t.avg) + " °C", "Температура, средняя") +
+            stat(fmt(rh.avg) + " %", "Влажность, средняя");
+
+        renderNotes(data.notes || []);
+    }
+
+    function renderPoints(data) {
+        var rows = [];
+        [["T", data.temperature], ["RH", data.humidity]].forEach(function (pair) {
+            var series = pair[1];
+            if (!series) { return; }
+            var name = series.name || series.address || "";
+            var title = series.path || "";
+            var samples = series.samples ? " <span>" + series.samples + " изм.</span>" : "";
+            rows.push('<div title="' + esc(title) + '"><b>' + pair[0] + "</b> "
+                + esc(name) + samples + "</div>");
+        });
+        $("points").innerHTML = rows.join("");
+    }
+
+    function renderNotes(notes) {
+        var list = $("notes");
+        if (!notes.length) {
+            list.classList.add("hidden");
+            list.innerHTML = "";
+            return;
+        }
+        list.innerHTML = notes.map(function (n) { return "<li>" + esc(n) + "</li>"; }).join("");
+        list.classList.remove("hidden");
+    }
+
+    function queryParam(name) {
+        var match = new RegExp("[?&]" + name + "=([^&]*)").exec(window.location.search);
+        return match ? decodeURIComponent(match[1].replace(/\+/g, " ")) : "";
+    }
+
+    function calc() {
+        var t = $("t").value.trim();
+        var rh = $("rh").value.trim();
+        var days = $("days").value;
+
+        if (!t || !rh) {
+            showError("Укажите оба адреса: тренд температуры и тренд влажности.");
+            return;
+        }
+
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ t: t, rh: rh, days: days }));
+        } catch (ignored) { /* приватный режим — не страшно */ }
+
+        setBusy(true);
+        var url = apiBase() + "api/calc?t=" + encodeURIComponent(t)
+            + "&rh=" + encodeURIComponent(rh)
+            + "&days=" + encodeURIComponent(days);
+
+        fetch(url, { headers: { "Accept": "application/json" }, cache: "no-store" })
+            .then(function (response) {
+                return response.text().then(function (text) {
+                    var body;
+                    try {
+                        body = JSON.parse(text);
+                    } catch (e) {
+                        body = { ok: false, error: "Сервер вернул не JSON (HTTP " + response.status + ")" };
+                    }
+                    if (!body.ok) {
+                        throw new Error(body.error || ("HTTP " + response.status));
+                    }
+                    return body;
+                });
+            })
+            .then(render)
+            .catch(function (e) { showError(e.message || String(e)); })
+            .then(function () { setBusy(false); });
+    }
+
+    function restore() {
+        try {
+            var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+            if (saved) {
+                $("t").value = saved.t || "";
+                $("rh").value = saved.rh || "";
+                if (saved.days) { $("days").value = saved.days; }
+            }
+        } catch (ignored) { /* мусор в localStorage — игнорируем */ }
+
+        // Адрес мог прийти из поиска по дереву (tree.jsp?…)
+        var fromTree = queryParam("t");
+        if (fromTree) { $("t").value = fromTree; }
+        fromTree = queryParam("rh");
+        if (fromTree) { $("rh").value = fromTree; }
+    }
+
+    $("go").addEventListener("click", calc);
+    $("refreshRooms").addEventListener("click", function () { loadRooms(false); });
+    $("roomDays").addEventListener("change", function () { loadRooms(false); });
+    ["t", "rh"].forEach(function (id) {
+        $(id).addEventListener("keydown", function (e) {
+            if (e.key === "Enter") { calc(); }
+        });
+    });
+
+    restore();
+    loadRooms();
+}());
+</script>
+</body>
+</html>

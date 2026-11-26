@@ -1,0 +1,5 @@
+build/
+dist/
+_tomcat-test/
+*.addon
+nbproject/private/

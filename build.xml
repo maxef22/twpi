@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Сборка аддона TWPI (NetBeans / Ant). Можно свободно редактировать.
+    Если этого файла нет, NetBeans создаст его заново.
+-->
+<project name="twpi" default="default" basedir=".">
+    <description>Builds the TWPI add-on for WebCTRL.</description>
+    <import file="nbproject/build-impl.xml"/>
+
+    <!--
+      WebCTRL ждёт архив вида: info.xml + META-INF/ + webapp/ (сам веб-модуль).
+      NetBeans собирает веб-контент в build/web, поэтому перед упаковкой
+      переносим его в build/web/webapp. info.xml и META-INF остаются в корне —
+      именно их ищет установщик аддонов.
+    -->
+    <target name="-pre-dist">
+        <mkdir dir="${build.web.dir}/webapp"/>
+        <move todir="${build.web.dir}/webapp">
+            <fileset dir="${build.web.dir}">
+                <include name="WEB-INF/**"/>
+                <include name="**/*.jsp"/>
+                <include name="**/*.html"/>
+                <include name="**/js/**"/>
+            </fileset>
+        </move>
+    </target>
+
+    <!-- Имя установочного файла задаёт контекст аддона: twpi.addon → /twpi -->
+    <target name="-post-dist">
+        <copy file="${dist.dir}/${war.name}" tofile="${dist.dir}/twpi.addon"/>
+    </target>
+</project>
