@@ -41,10 +41,13 @@ public class IncludeContentServlet extends HttpServlet {
         response.setContentType("text/html; charset=UTF-8");
         String contextPath = request.getContextPath();
         PrintWriter out = response.getWriter();
-        out.write("<div class=\"twpi-embed\" style=\"width:100%\">");
+        // Размер задаёт сам элемент «Add-on Content»: iframe занимает весь бокс,
+        // внутри страница прокручивается. min-height — на случай, если контейнер
+        // ещё не получил высоту.
+        out.write("<div class=\"twpi-embed\" style=\"width:100%;height:100%;"
+                + "min-height:160px;margin:0;overflow:hidden\">");
         out.write("<iframe src=\"" + contextPath + "/index.html?embed=1\" "
-                + "style=\"width:100%;height:calc(100vh - 120px);min-height:640px;"
-                + "border:0;display:block\" "
+                + "style=\"width:100%;height:100%;border:0;display:block;background:#1b1e22\" "
                 + "title=\"TWPI\"></iframe>");
         out.write("</div>");
         out.flush();
