@@ -1,7 +1,7 @@
 <extension version='1'>
   <name>TWPI</name>
   <description>Preservation Index (TWPI) for WebCTRL: rooms, sensors, monthly history</description>
-  <version>0.2.4</version>
+  <version>0.2.5</version>
   <vendor>MAX</vendor>
   <eula use-system-addon-eula='true' />
   <license-requirements />

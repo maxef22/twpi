@@ -113,6 +113,14 @@ try { Add-Type -AssemblyName System.IO.Compression.FileSystem } catch { }
 
 $zip = [System.IO.Compression.ZipFile]::Open($OutFile, [System.IO.Compression.ZipArchiveMode]::Create)
 try {
+    # WebCTRL recognizes a web add-on by an explicit "webapp/" entry:
+    # ExtensionManager.supportsType() does zip.getEntry("webapp/") and skips the
+    # archive entirely when the directory entry is missing. Files alone are not
+    # enough -- such an add-on installs manually but disappears on restart.
+    Get-ChildItem -Path $stageDir -Recurse -Directory | Sort-Object FullName | ForEach-Object {
+        $dirName = $_.FullName.Substring($stageDir.Length + 1).Replace("\", "/") + "/"
+        $zip.CreateEntry($dirName) | Out-Null
+    }
     Get-ChildItem -Path $stageDir -Recurse -File | ForEach-Object {
         $name = $_.FullName.Substring($stageDir.Length + 1).Replace("\", "/")
         [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $_.FullName, $name) | Out-Null
