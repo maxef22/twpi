@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-store, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TWPI — индекс сохранности</title>
-<link rel="stylesheet" href="theme.css?v=0.3.6">
+<link rel="stylesheet" href="theme.css?v=0.3.7">
 </head>
 <body>
 <main class="wrap">
@@ -212,23 +212,56 @@
         });
     }
 
+    /**
+     * Базовые пути для API. Внутри WebCTRL страница может открываться с чужим
+     * location (контент вставляется в main.jsp), и относительный путь уходит не
+     * туда. Поэтому пробуем вычисленный путь, затем абсолютный /twpi/.
+     */
+    function apiBases() {
+        var list = [];
+        var base = apiBase();
+        if (base) { list.push(base); }
+        if (list.indexOf("/twpi/") === -1) { list.push("/twpi/"); }
+        return list;
+    }
+
+    function getJson(path) {
+        var bases = apiBases();
+        var index = 0;
+        function attempt() {
+            if (index >= bases.length) {
+                return Promise.reject(new Error("не удалось запросить " + path
+                    + " (пробовали " + bases.join(", ") + ")"));
+            }
+            var url = bases[index++] + path;
+            return fetch(url, { headers: { "Accept": "application/json" }, cache: "no-store" })
+                .then(function (response) {
+                    if (response.status === 404 && index < bases.length) {
+                        return attempt();
+                    }
+                    return response.text().then(function (text) {
+                        var body;
+                        try { body = JSON.parse(text); }
+                        catch (e) {
+                            throw new Error("Сервер вернул не JSON (HTTP " + response.status + ") по адресу " + url);
+                        }
+                        if (!body.ok) {
+                            throw new Error((body.error || ("HTTP " + response.status)) + " — " + url);
+                        }
+                        return body;
+                    });
+                });
+        }
+        return attempt();
+    }
+
     function loadRooms(force) {
         var days = $("roomDays").value;
         var button = $("refreshRooms");
         button.disabled = true;
         var idleLabel = button.textContent;
         button.textContent = "Считаю…";
-        fetch(apiBase() + "api/all?days=" + encodeURIComponent(days) + (force ? "&fresh=1" : ""),
-              { headers: { "Accept": "application/json" }, cache: "no-store" })
-            .then(function (response) {
-                return response.text().then(function (text) {
-                    var body;
-                    try { body = JSON.parse(text); }
-                    catch (e) { body = { ok: false, error: "Сервер вернул не JSON (HTTP " + response.status + ")" }; }
-                    if (!body.ok) { throw new Error(body.error || ("HTTP " + response.status)); }
-                    return body;
-                });
-            })
+        getJson("api/all?days=" + encodeURIComponent(days) + (force ? "&fresh=1" : ""))
             .then(function (data) {
                 var host = $("roomsHost");
                 var rooms = data.rooms || [];
@@ -331,25 +364,9 @@
         } catch (ignored) { /* приватный режим — не страшно */ }
 
         setBusy(true);
-        var url = apiBase() + "api/calc?t=" + encodeURIComponent(t)
-            + "&rh=" + encodeURIComponent(rh)
-            + "&days=" + encodeURIComponent(days);
-
-        fetch(url, { headers: { "Accept": "application/json" }, cache: "no-store" })
-            .then(function (response) {
-                return response.text().then(function (text) {
-                    var body;
-                    try {
-                        body = JSON.parse(text);
-                    } catch (e) {
-                        body = { ok: false, error: "Сервер вернул не JSON (HTTP " + response.status + ")" };
-                    }
-                    if (!body.ok) {
-                        throw new Error(body.error || ("HTTP " + response.status));
-                    }
-                    return body;
-                });
-            })
+        getJson("api/calc?t=" + encodeURIComponent(t)
+                + "&rh=" + encodeURIComponent(rh)
+                + "&days=" + encodeURIComponent(days))
             .then(render)
             .catch(function (e) { showError(e.message || String(e)); })
             .then(function () { setBusy(false); });

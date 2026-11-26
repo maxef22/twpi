@@ -4,7 +4,7 @@
 относительной влажности: список помещений, несколько датчиков на помещение,
 карточки с оценкой и история по месяцам.
 
-**Версия 0.3.6** · установочный файл [`dist/twpi.addon`](dist/twpi.addon) · [релизы](https://github.com/maxef22/twpi/releases) · контекст `/twpi`
+**Версия 0.3.7** · установочный файл [`dist/twpi.addon`](dist/twpi.addon) · [релизы](https://github.com/maxef22/twpi/releases) · контекст `/twpi`
 
 ## Что делает
 

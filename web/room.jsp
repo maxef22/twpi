@@ -88,6 +88,35 @@
         return path.replace(/[^\/]*$/, "");
     }
 
+    /** Внутри WebCTRL location может быть чужим — пробуем и абсолютный /twpi/. */
+    function getJson(path) {
+        var bases = [apiBase()];
+        if (bases.indexOf("/twpi/") === -1) { bases.push("/twpi/"); }
+        var index = 0;
+        function attempt() {
+            if (index >= bases.length) {
+                return Promise.reject(new Error("не удалось запросить " + path));
+            }
+            var url = bases[index++] + path;
+            return fetch(url, { headers: { "Accept": "application/json" }, cache: "no-store" })
+                .then(function (response) {
+                    if (response.status === 404 && index < bases.length) { return attempt(); }
+                    return response.text().then(function (text) {
+                        var body;
+                        try { body = JSON.parse(text); }
+                        catch (e) {
+                            throw new Error("Сервер вернул не JSON (HTTP " + response.status + ") по адресу " + url);
+                        }
+                        if (!body.ok) {
+                            throw new Error((body.error || ("HTTP " + response.status)) + " — " + url);
+                        }
+                        return body;
+                    });
+                });
+        }
+        return attempt();
+    }
+
     function dateTime(ms) {
         return new Date(ms).toLocaleString("ru-RU", {
             day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
@@ -230,17 +259,7 @@
         $("refresh").disabled = true;
         $("refresh").textContent = "Считаю…";
 
-        fetch(apiBase() + "api/room?i=" + index + "&days=" + encodeURIComponent(days) + "&months=12",
-              { headers: { "Accept": "application/json" }, cache: "no-store" })
-            .then(function (response) {
-                return response.text().then(function (text) {
-                    var body;
-                    try { body = JSON.parse(text); }
-                    catch (e) { body = { ok: false, error: "Сервер вернул не JSON (HTTP " + response.status + ")" }; }
-                    if (!body.ok) { throw new Error(body.error || ("HTTP " + response.status)); }
-                    return body;
-                });
-            })
+        getJson("api/room?i=" + index + "&days=" + encodeURIComponent(days) + "&months=12")
             .then(function (data) {
                 $("error").style.display = "none";
                 $("mainCard").style.display = "block";
