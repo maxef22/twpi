@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-store, must-revalidate">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TWPI — индекс сохранности</title>
-<link rel="stylesheet" href="theme.css?v=0.3.1">
+<link rel="stylesheet" href="theme.css?v=0.3.3">
 </head>
 <body>
 <main class="wrap">
@@ -118,6 +118,11 @@
 
     var $ = function (id) { return document.getElementById(id); };
     var STORAGE_KEY = "twpi.lastPair";
+
+    // Встроенный режим: страница открыта в iframe через /twpi/include_content
+    if (/[?&]embed=1/.test(window.location.search)) {
+        document.body.className += " embedded";
+    }
 
     function fmt(value) {
         if (value === null || value === undefined || isNaN(value)) { return "—"; }
