@@ -97,6 +97,47 @@ Copy-Item -LiteralPath (Join-Path $root "web\META-INF") -Destination $stageDir -
 Get-ChildItem -Path (Join-Path $root "web") -File |
     Where-Object { $_.Extension -eq ".html" -or $_.Extension -eq ".jsp" -or $_.Extension -eq ".css" -or $_.Extension -eq ".js" } |
     ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $webappDir }
+
+# WebCTRL serves add-on files through its own resource layer, which sets no
+# charset -- the embedded browser then decodes UTF-8 as the system codepage and
+# Cyrillic turns into mojibake. Make index.html pure ASCII: text as &#NNNN;
+# entities, JS strings as \uNNNN escapes. Then the encoding does not matter.
+function Convert-ToAsciiHtml([string]$text) {
+    $builder = New-Object System.Text.StringBuilder ($text.Length + 4096)
+    $inScript = $false
+    $i = 0
+    while ($i -lt $text.Length) {
+        if (-not $inScript -and $i + 7 -le $text.Length -and $text.Substring($i, 7) -eq "<script") {
+            $inScript = $true
+            [void]$builder.Append("<script")
+            $i += 7
+            continue
+        }
+        if ($inScript -and $i + 9 -le $text.Length -and $text.Substring($i, 9) -eq "</script>") {
+            $inScript = $false
+            [void]$builder.Append("</script>")
+            $i += 9
+            continue
+        }
+        $ch = $text[$i]
+        $code = [int]$ch
+        if ($code -lt 128) {
+            [void]$builder.Append($ch)
+        } elseif ($inScript) {
+            [void]$builder.Append(('\u{0:X4}' -f $code))
+        } else {
+            [void]$builder.Append(('&#{0};' -f $code))
+        }
+        $i++
+    }
+    return $builder.ToString()
+}
+
+$indexPath = Join-Path $webappDir "index.html"
+$indexText = [System.IO.File]::ReadAllText($indexPath, [System.Text.Encoding]::UTF8)
+$asciiText = Convert-ToAsciiHtml $indexText
+[System.IO.File]::WriteAllText($indexPath, $asciiText, [System.Text.Encoding]::ASCII)
+
 Copy-Item -LiteralPath (Join-Path $root "web\WEB-INF\web.xml") -Destination $webinfDir
 Copy-Item -Path (Join-Path $classesDir "*") -Destination (Join-Path $webinfDir "classes") -Recurse
 Copy-Item -LiteralPath $jsonJar -Destination (Join-Path $webinfDir "lib")
